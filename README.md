@@ -1,7 +1,7 @@
 # 📚 每周论文汇总速递
 
 自动抓取 ArXiv/Europe PMC 最新 AI 论文，使用 DeepSeek/Kimi 进行深度分析，并推送到飞书。
-参考https://github.com/NN0202/arxiv_daily_paper_push.git改进
+参考改进 https://github.com/NN0202/arxiv_daily_paper_push.git  
 
 ## ✨ 功能特性
 
@@ -60,5 +60,5 @@ DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"  # 或你的AP
 - 如需修改论文查询关键词，编辑 daily_paper.py 中的 query 参数
 
 ## 🫡 私人定制
-- 1. daily_paper_ai.py 专注于人工智能/计算机科学领域方向的论文检索，主要获取arxiv中的论文，可通过修改advanced_query调整关键词
-- 2. daily_paper_bio.py 专注于生物科学领域方向的论文检索，主要获取arxiv/Europe PMC中的论文，可通过修改advanced_query调整关键词
+-  daily_paper_ai.py 专注于人工智能/计算机科学领域方向的论文检索，主要获取arxiv中的论文，可通过修改advanced_query调整关键词
+-  daily_paper_bio.py 专注于生物科学领域方向的论文检索，主要获取arxiv/Europe PMC中的论文，可通过修改advanced_query调整关键词
