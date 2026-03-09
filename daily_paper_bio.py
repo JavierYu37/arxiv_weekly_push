@@ -193,49 +193,43 @@ def summarize_with_deepseek(paper):
         return f"未预期的错误: {type(e).__name__}: {str(e)}"
 
 
-def push_to_feishu(report_content):
-    """发送飞书富文本卡片"""
+def push_to_feishu(report_content, paper_count):
+    """发送飞书富文本卡片 (接收报告内容和论文数量)"""
     header = { "Content-Type": "application/json" }
     payload = {
         "msg_type": "interactive",
         "card": {
             "config": {
-                "wide_screen_mode": True,  # 【关键美化】开启宽屏模式，文字不挤
+                "wide_screen_mode": True,
                 "enable_forward": True
             },
             "header": {
                 "title": {
                     "tag": "plain_text",
-                    "content": f"🚀 ArXiv 每日精选 · {datetime.now().strftime('%m-%d')}"
+                    "content": f"🧠 网络神经科学前沿 · {datetime.now().strftime('%m-%d')}"
                 },
-                "template": "blue"  # 换成稳重的蓝色，比橙色更护眼
+                "template": "turquoise"  # 蓝绿色，非常适合生物医学主题
             },
-            "elements": [
-                # 顶部引言块
+            "elements":[
                 {
                     "tag": "div",
                     "text": {
                         "tag": "lark_md",
-                        "content": "💡 **今日 AI 前沿论文已由 Agent 深度分析完毕，请阅览：**"
+                        "content": f"🔬 **过去 7 天内共检索到 {paper_count} 篇强相关高价值文献，涵盖 bioRxiv, PubMed 及 ArXiv：**"
                     }
                 },
-                {"tag": "hr"}, # 分割线
-                
-                # 核心分析内容（原封不动保留 Markdown 的丰富排版！）
+                {"tag": "hr"}, 
                 {
                     "tag": "markdown",
                     "content": report_content
                 },
-                
                 {"tag": "hr"},
-                
-                # 精美页脚
                 {
                     "tag": "note",
-                    "elements": [
+                    "elements":[
                         {
                             "tag": "plain_text",
-                            "content": f"🤖 本摘要由 DeepSeek-V3 自动生成 | 抓取时间: {datetime.now().strftime('%H:%M')}"
+                            "content": f"🤖 跨库检索及 Agent 分析完成 | 检索源: Europe PMC / ArXiv"
                         }
                     ]
                 }
@@ -243,7 +237,7 @@ def push_to_feishu(report_content):
         }
     }
     requests.post(FEISHU_WEBHOOK, headers=header, json=payload)
-
+    
 if __name__ == "__main__":
     print("🚀 启动生物医学/神经科学多源文献监控引擎...")
     
