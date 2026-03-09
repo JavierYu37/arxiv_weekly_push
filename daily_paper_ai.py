@@ -131,7 +131,7 @@ def push_to_feishu(report_content, paper_count):
             "header": {
                 "title": {
                     "tag": "plain_text",
-                    "content": f"🧠 网络神经科学前沿 · {datetime.now().strftime('%m-%d')}"
+                    "content": f"🧠 论文速递 · {datetime.now().strftime('%m-%d')}"
                 },
                 "template": "turquoise"  # 蓝绿色，非常适合生物医学主题
             },
@@ -140,7 +140,7 @@ def push_to_feishu(report_content, paper_count):
                     "tag": "div",
                     "text": {
                         "tag": "lark_md",
-                        "content": f"🔬 **过去7天内共检索到 {paper_count} 篇强相关高价值文献，涵盖 bioRxiv, PubMed 及 ArXiv：**"
+                        "content": f"🔬 **过去7天内共检索到 {paper_count} 篇强相关高价值文献：**"
                     }
                 },
                 {"tag": "hr"}, 
@@ -154,7 +154,7 @@ def push_to_feishu(report_content, paper_count):
                     "elements": [
                         {
                             "tag": "plain_text",
-                            "content": f"🤖 跨库检索及 Agent 分析完成 | 检索源: Europe PMC / ArXiv"
+                            "content": f"🤖 跨库检索及 Agent 分析完成 | 检索源: ArXiv"
                         }
                     ]
                 }
@@ -177,39 +177,32 @@ if __name__ == "__main__":
                      'AND (abs:"multi-agent" OR abs:"UAV" OR abs:"task planning" OR abs:"human-AI")' \
                      ')'
     
-    # 策略改变：按【相关性(Relevance)】排序，而不是时间。先抓取前 50 篇候选。
+    # 按【相关性(Relevance)】排序。先抓取前 50 篇候选。
     search = arxiv.Search(
         query=advanced_query, 
         max_results=50, 
         sort_by=arxiv.SortCriterion.Relevance 
     )
     
-    # 计算时间边界：当前时间减去 7 天 (必须使用 UTC 时区以匹配 ArXiv 的数据)
+    # 计算时间边界：当前时间减去 7 天 
     one_week_ago = datetime.now(timezone.utc) - timedelta(days=7)
     
     results = list(client.results(search))
-    target_papers = []
+    target_papers =[]
     
     # 本地过滤逻辑
     for paper in results:
-        # 检查论文是否在过去 7 天内发布
         if paper.published >= one_week_ago:
             target_papers.append(paper)
-        
-        # 凑够 10 篇最相关的就立刻停止寻找
         if len(target_papers) >= 10:
             break
-
-    full_report = ""
-    
+            
     if not target_papers:
         print("💡 过去一周内没有找到与当前主题【强相关】的新论文。")
-        # 你也可以选择在这里推送一条飞书消息告诉你今天没论文，或者直接退出
     else:
         print(f"🎯 过滤完毕，共找到 {len(target_papers)} 篇一周内强相关论文，开始 AI 分析...")
         
-        # 在报告开头加上统计信息
-        full_report += f"📊 **本期检索策略**：过去 7 天内最相关 | 共收录 {len(target_papers)} 篇\n\n---\n\n"
+        full_report = f"📊 **本期检索策略**：过去 7 天内最相关 | 共收录 {len(target_papers)} 篇\n\n---\n\n"
         
         for i, res in enumerate(target_papers):
             print(f"🤖 正在分析第 {i+1}/{len(target_papers)} 篇: {res.title}")
@@ -230,5 +223,6 @@ if __name__ == "__main__":
             full_report += f"**📄 {i+1}. {res.title}**\n[📎 点击阅读原文]({res.entry_id}){code_md}\n\n{summary}\n\n---\n"
         
         print("🚀 分析完毕，正在推送到飞书...")
-        push_to_feishu(full_report)
+        # 这里传入了全量报告和论文总数两个参数，完美匹配上面定义的函数！
+        push_to_feishu(full_report, len(target_papers))
         print("✅ 推送成功！")
